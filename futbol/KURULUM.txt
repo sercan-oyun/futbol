@@ -1,0 +1,38 @@
+FUTBOL - KURULUM (iPhone + GitHub)
+
+A) ANAHTARLAR
+1. football-data.org/client/register -> ücretsiz anahtar e-posta ile gelir.
+2. dashboard.api-football.com -> ücretsiz hesap, anahtar profil sayfasında.
+   (RapidAPI üzerinden değil, doğrudan bu adresten.)
+
+B) DEPO
+1. github.com > + > New repository. Ad: futbol. Public. Create.
+2. Add file (+ düğmesi) > Upload files: bu klasördeki dosyaları sürükleyin
+   (index.html, sw.js, manifest.webmanifest, ikonlar, README.md, KURULUM.txt
+    ve data klasörü). Commit changes.
+3. .github klasörü Mac'te gizlidir, sürüklemek yerine şöyle ekleyin:
+   + > Create new file > dosya adı kutusuna şunu yazın:
+   .github/workflows/update.yml
+   Sonra workflow-update-yml.txt dosyasının içeriğini yapıştırın > Commit.
+   Aynı şekilde scripts/fetch.mjs dosyasını da oluşturup fetch.mjs içeriğini yapıştırın
+   (ya da Upload files ile scripts klasörünü sürükleyin).
+
+C) ANAHTARLARI GİZLİ KASAYA KOYUN
+   Settings > Secrets and variables > Actions > New repository secret
+   - Name: FD_TOKEN   Secret: football-data.org anahtarınız
+   - Name: AF_KEY     Secret: api-football anahtarınız
+
+D) YAYIN
+   Settings > Pages > Branch: main / (root) > Save.
+   Adres: https://KULLANICIADINIZ.github.io/futbol/
+
+E) İLK VERİ
+   Actions sekmesi > "Verileri güncelle" > Run workflow.
+   Bir dakika sonra data/all.json güncellenir. Sonra 3 saatte bir kendiliğinden çalışır.
+
+F) IPHONE'A KURMA
+   Safari ile adresi açın > alttaki Paylaş simgesi > "Ana Ekrana Ekle" > Ekle.
+   Ana ekranda "Futbol" simgesi çıkar. İnternet yokken son çekilen veriyi gösterir.
+
+NOT: Anahtarları kimseyle paylaşmayın. Gizli kasaya konulan değerler
+depo herkese açık olsa bile görünmez.
