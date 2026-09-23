@@ -34,7 +34,10 @@ async function getJSON(url, headers, tries = 3) {
     try {
       const r = await fetch(url, { headers });
       if (r.status === 429) { await sleep(20000); continue; }
-      if (!r.ok) throw new Error(`${r.status} ${r.statusText} — ${url}`);
+      if (!r.ok) {
+        const body = (await r.text().catch(() => '')).slice(0, 300);
+        throw new Error(`${r.status} ${r.statusText} — ${url.replace(/\?.*/, '')} — cevap: ${body}`);
+      }
       return await r.json();
     } catch (e) {
       if (i === tries) throw e;
@@ -57,7 +60,7 @@ async function fdLeague(L) {
     for (const t of (tj.teams || [])) { if (t.venue) { venues[t.id] = t.venue; } }
     await sleep(7000);
   } catch { /* stat bilgisi olmasa da olur */ }
-  const mj = await getJSON(`${base}/matches?dateFrom=${from}&dateTo=${to}`, H);
+  const mj = await getJSON(`${base}/matches?season=${AF_SEASON}`, H);
   await sleep(7000);
   const sj = await getJSON(`${base}/standings`, H);
   await sleep(7000);
@@ -67,7 +70,7 @@ async function fdLeague(L) {
     scorers = (cj.scorers || []).map(s => ({ name: s.player?.name, team: s.team?.shortName || s.team?.name, goals: s.goals ?? 0 }));
   } catch { /* gol krallığı yoksa sorun değil */ }
 
-  const matches = (mj.matches || []).map(m => ({
+  const matches = (mj.matches || []).filter(m => m.utcDate >= from && m.utcDate <= to + 'T23:59').map(m => ({
     id: 'fd' + m.id,
     utc: m.utcDate,
     status: FD_STATUS[m.status] || 'bekliyor',
@@ -110,7 +113,10 @@ async function afLeague(L) {
   const H = { 'x-apisports-key': AF_KEY };
   const base = 'https://v3.football.api-sports.io';
   const fj = await getJSON(`${base}/fixtures?league=${L.af}&season=${AF_SEASON}&from=${from}&to=${to}`, H);
+  const afErr = j => { const e = j?.errors; if (e && (Array.isArray(e) ? e.length : Object.keys(e).length)) throw new Error('api-football: ' + JSON.stringify(e).slice(0, 220)); };
+  afErr(fj);
   const sj = await getJSON(`${base}/standings?league=${L.af}&season=${AF_SEASON}`, H);
+  afErr(sj);
   let scorers = [];
   try {
     const tj = await getJSON(`${base}/players/topscorers?league=${L.af}&season=${AF_SEASON}`, H);
