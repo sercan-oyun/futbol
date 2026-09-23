@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1720">
+<title>Futbol</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Futbol">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#f3f5f7; --card:#fff; --ink:#111a22; --muted:#66757f; --line:rgba(0,0,0,.09);
+  --accent:#0c8f4d; --accent-soft:rgba(12,143,77,.12); --warn:#b3261e; --chip:#e7ebef;
+  --top:#0f1720;
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#0b1117; --card:#131c25; --ink:#e8eef3; --muted:#8fa1ae; --line:rgba(255,255,255,.1);
+    --accent:#2bd47d; --accent-soft:rgba(43,212,125,.14); --chip:#1d2833; --top:#0b1117;}
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  -webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+header{position:sticky;top:0;z-index:20;background:var(--top);color:#fff;
+  padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 0}
+.hrow{display:flex;align-items:baseline;gap:10px}
+.hrow h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.4px}
+.upd{font-size:12px;color:#9fb3c2;margin-left:auto;text-align:right;line-height:1.3}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.12);color:#dbe6ee;
+  font-size:15px;font-weight:600;white-space:nowrap}
+.chip.on{background:var(--accent);color:#04150c}
+main{padding:12px 12px calc(env(safe-area-inset-bottom,0px) + 28px);max-width:720px;margin:0 auto}
+
+.seg{display:flex;gap:6px;background:var(--chip);border-radius:12px;padding:4px;margin:0 0 12px}
+.seg button{flex:1;padding:9px 6px;border-radius:9px;font-size:15px;font-weight:700;color:var(--muted)}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
+
+.daylbl{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:16px 4px 6px}
+.card{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.m{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.m:last-child{border-bottom:0}
+.m .tm{flex:none;width:44px;font-size:13px;font-weight:700;color:var(--muted);text-align:center;line-height:1.25}
+.m .tm .lg{display:block;font-size:10px;font-weight:700;color:var(--accent)}
+.m .sides{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.m .side{display:flex;align-items:center;gap:7px;min-width:0}
+.m .sc{align-self:flex-start;padding-top:2px}
+.m .side img{width:18px;height:18px;object-fit:contain;flex:none}
+.m .side span{font-size:15px;line-height:1.2;overflow-wrap:anywhere}
+.m .side.win span{font-weight:700}
+.m .meta{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wknav{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.wknav button{flex:none;width:40px;height:40px;border-radius:12px;background:var(--chip);font-size:18px;font-weight:800;color:var(--ink)}
+.wknav button:disabled{opacity:.35}
+.wknav .lbl{flex:1;text-align:center;font-size:15px;font-weight:800}
+.wknav .lbl small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+.m .sc{flex:none;min-width:34px;text-align:right;font-variant-numeric:tabular-nums;
+  display:flex;flex-direction:column;gap:4px;font-size:15px;font-weight:700}
+.m .sc .d{color:var(--muted);font-weight:600}
+.m.live .tm{color:var(--accent)}
+.badge{font-size:11px;font-weight:800;padding:2px 6px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
+.badge.off{background:rgba(179,38,30,.12);color:var(--warn)}
+
+table.st{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden}
+table.st th,table.st td{padding:8px 4px;font-size:13px;text-align:center;border-bottom:1px solid var(--line)}
+table.st th{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase}
+table.st td.t,table.st th.t{text-align:left;width:100%}
+table.st td.t{display:flex;align-items:center;gap:7px;min-width:0}
+table.st td.t img{width:17px;height:17px;object-fit:contain;flex:none}
+table.st td.t span{font-size:13.5px;line-height:1.2;overflow-wrap:anywhere;text-align:left}
+table.st td.p{font-weight:800}
+table.st tr.zone-cl td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+table.st tr.zone-el td:first-child{box-shadow:inset 3px 0 0 #e0a526}
+table.st tr.zone-dn td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+.gtitle{font-size:14px;font-weight:800;margin:16px 4px 6px}
+
+.sc-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.sc-row:last-child{border-bottom:0}
+.sc-row .n{width:20px;color:var(--muted);font-weight:700;font-size:13px}
+.sc-row .who{flex:1;min-width:0}
+.sc-row .who b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-row .who small{color:var(--muted);font-size:12px}
+.sc-row .g{font-weight:800;font-size:17px}
+
+.note{background:var(--card);border-radius:12px;padding:14px;color:var(--muted);font-size:14px;text-align:center}
+.banner{background:#e0a526;color:#2a1d00;font-weight:700;font-size:13px;padding:8px 12px;border-radius:10px;margin-bottom:12px}
+.banner.err{background:rgba(179,38,30,.15);color:var(--warn)}
+.ref{border-radius:10px;background:rgba(255,255,255,.12);padding:6px 10px;font-size:13px;color:#dbe6ee;font-weight:600}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin:8px 4px 0;font-size:11px;color:var(--muted)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
+@media (prefers-reduced-motion:no-preference){.fade{animation:f .18s ease}}
+@keyframes f{from{opacity:0;transform:translateY(4px)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow">
+    <h1>Futbol</h1>
+    <div class="upd" id="upd"></div>
+    <button class="ref" id="ref" aria-label="Yenile">↻</button>
+  </div>
+  <div class="chips" id="chips"></div>
+</header>
+<main id="main"><div class="note">Yükleniyor…</div></main>
+
+<script>
+const LEAGUE_ORDER = ['SL','CL','EL','PL','PD','SA','BL1','FL1'];
+const $ = s => document.querySelector(s);
+let DATA = null, view = 'hafta', tab = 'mac', wk = 0;
+
+/* ---------- tarih yardımcıları (Türkiye saati) ---------- */
+const TZ = 'Europe/Istanbul';
+const fmtTime = d => d.toLocaleTimeString('tr-TR', { timeZone: TZ, hour: '2-digit', minute: '2-digit' });
+const dayKey  = d => d.toLocaleDateString('sv-SE', { timeZone: TZ });          // YYYY-MM-DD
+const dayName = k => {
+  const today = dayKey(new Date());
+  const t2 = new Date(Date.now() + 864e5), y2 = new Date(Date.now() - 864e5);
+  if (k === today) return 'Bugün';
+  if (k === dayKey(t2)) return 'Yarın';
+  if (k === dayKey(y2)) return 'Dün';
+  const d = new Date(k + 'T12:00:00Z');
+  return d.toLocaleDateString('tr-TR', { timeZone: TZ, day: 'numeric', month: 'long', weekday: 'long' });
+};
+
+/* ---------- veri ---------- */
+async function load(force) {
+  try {
+    const r = await fetch('data/all.json' + (force ? '?t=' + Date.now() : ''), force ? { cache: 'reload' } : {});
+    if (!r.ok) throw new Error(r.status);
+    DATA = await r.json();
+  } catch (e) {
+    if (window.DEMO) { DATA = window.DEMO; }
+    else { $('#main').innerHTML = '<div class="note">Veri yüklenemedi. İnternet bağlantınızı kontrol edip yenileyin.</div>'; return; }
+  }
+  DATA.leagues.sort((a, b) => LEAGUE_ORDER.indexOf(a.code) - LEAGUE_ORDER.indexOf(b.code));
+  render();
+}
+const league = code => DATA.leagues.find(l => l.code === code);
+
+/* ---------- çizim ---------- */
+function render() {
+  const u = new Date(DATA.updated);
+  $('#upd').innerHTML = 'Güncellendi<br>' + u.toLocaleString('tr-TR', { timeZone: TZ, day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const chips = $('#chips');
+  chips.innerHTML = '';
+  const add = (id, label) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (view === id ? ' on' : '');
+    b.textContent = label; b.onclick = () => { view = id; tab = 'mac'; wk = 0; render(); window.scrollTo(0, 0); };
+    chips.appendChild(b);
+  };
+  add('hafta', 'Bu hafta');
+  DATA.leagues.forEach(l => add(l.code, l.short));
+
+  const m = $('#main'); m.innerHTML = ''; m.className = 'fade';
+  if (DATA.demo) m.innerHTML = '<div class="banner">ÖRNEK VERİ — gerçek maçlar değil. Anahtarlar bağlanınca gerçek veri gelecek.</div>';
+  if (view === 'hafta') return renderWeek(m);
+  renderLeague(m, league(view));
+}
+
+function matchEl(mt, withLeague) {
+  const d = new Date(mt.utc), done = mt.status === 'bitti', live = mt.status === 'oynaniyor';
+  const el = document.createElement('div');
+  el.className = 'm' + (live ? ' live' : '');
+  const hw = done && mt.hs > mt.as, aw = done && mt.as > mt.hs;
+  const crest = u => u ? `<img src="${u}" alt="" loading="lazy">` : '';
+  const meta = [mt.venue ? '🏟 ' + mt.venue : '', mt.tv ? '📺 ' + mt.tv : ''].filter(Boolean).join('  ·  ');
+  const right = mt.status === 'ertelendi' ? '<span class="badge off">ERT</span>'
+    : mt.status === 'iptal' ? '<span class="badge off">İPTAL</span>'
+    : (done || live) ? `<span>${mt.hs ?? 0}</span><span>${mt.as ?? 0}</span>`
+    : '<span class="d">-</span><span class="d">-</span>';
+  el.innerHTML = `
+    <div class="tm">${done ? 'Bitti' : live ? 'Canlı' : fmtTime(d)}${withLeague ? `<span class="lg">${withLeague}</span>` : ''}</div>
+    <div class="sides">
+      <div class="side${hw ? ' win' : ''}">${crest(mt.hc)}<span>${mt.home}</span></div>
+      <div class="side${aw ? ' win' : ''}">${crest(mt.ac)}<span>${mt.away}</span></div>
+      ${meta ? `<div class="meta">${meta}</div>` : ''}
+    </div>
+    <div class="sc">${right}</div>`;
+  return el;
+}
+
+// Türkiye saatine göre haftanın pazartesi günü (YYYY-MM-DD)
+function weekStart(d) {
+  const k = dayKey(d), [y, m, dd] = k.split('-').map(Number);
+  const u = new Date(Date.UTC(y, m - 1, dd));
+  u.setUTCDate(u.getUTCDate() - ((u.getUTCDay() + 6) % 7));
+  return u.toISOString().slice(0, 10);
+}
+function weekLabel(ws) {
+  const a = new Date(ws + 'T12:00:00Z'), b = new Date(a.getTime() + 6 * 864e5);
+  const f = (d, opt) => d.toLocaleDateString('tr-TR', { timeZone: 'UTC', ...opt });
+  const same = a.getUTCMonth() === b.getUTCMonth();
+  return f(a, { day: 'numeric', month: same ? undefined : 'long' }) + ' – ' + f(b, { day: 'numeric', month: 'long' });
+}
+function groupByDay(list) {
+  const map = new Map();
+  list.forEach(x => { const k = dayKey(new Date(x.utc)); if (!map.has(k)) map.set(k, []); map.get(k).push(x); });
+  return [...map.entries()].sort((a, b) => a[0] < b[0] ? -1 : 1);
+}
+
+function renderWeek(m) {
+  const now = Date.now(), start = now - 3 * 864e5, end = now + 7 * 864e5;
+  const all = [];
+  DATA.leagues.forEach(l => l.matches.forEach(x => {
+    const t = new Date(x.utc).getTime();
+    if (t >= start && t <= end) all.push({ ...x, lg: l.short });
+  }));
+  all.sort((a, b) => a.utc < b.utc ? -1 : 1);
+  if (!all.length) { m.insertAdjacentHTML('beforeend', '<div class="note">Bu aralıkta maç görünmüyor.</div>'); return; }
+  for (const [k, list] of groupByDay(all)) {
+    m.insertAdjacentHTML('beforeend', `<div class="daylbl">${dayName(k)}</div>`);
+    const c = document.createElement('div'); c.className = 'card';
+    list.forEach(x => c.appendChild(matchEl(x, x.lg)));
+    m.appendChild(c);
+  }
+}
+
+function renderLeague(m, L) {
+  if (!L) return;
+  if (L.stale) m.insertAdjacentHTML('beforeend', '<div class="banner err">Bu yarışmanın verisi son güncellemede alınamadı, eski veri gösteriliyor.</div>');
+  const seg = document.createElement('div'); seg.className = 'seg';
+  const tabs = [['mac', 'Maçlar'], ['puan', 'Puan durumu']];
+  if (L.scorers && L.scorers.length) tabs.push(['gol', 'Krallık']);
+  tabs.forEach(([id, label]) => {
+    const b = document.createElement('button'); b.className = tab === id ? 'on' : '';
+    b.textContent = label; b.onclick = () => { tab = id; render(); };
+    seg.appendChild(b);
+  });
+  m.appendChild(seg);
+
+  if (tab === 'mac') {
+    if (!L.matches.length) { m.insertAdjacentHTML('beforeend', '<div class="note">Maç bulunamadı.</div>'); return; }
+    // maçları haftalara böl, varsayılan olarak içinde bulunduğumuz hafta
+    const weeks = new Map();
+    L.matches.forEach(x => { const w = weekStart(new Date(x.utc)); if (!weeks.has(w)) weeks.set(w, []); weeks.get(w).push(x); });
+    const keys = [...weeks.keys()].sort();
+    const thisWeek = weekStart(new Date());
+    let base = keys.indexOf(thisWeek);
+    if (base < 0) { base = keys.findIndex(k => k > thisWeek); if (base < 0) base = keys.length - 1; }
+    let i = Math.min(Math.max(base + wk, 0), keys.length - 1);
+    const list = weeks.get(keys[i]) || [];
+    const rounds = [...new Set(list.map(x => x.round).filter(Boolean))].join(' · ');
+    const nav = document.createElement('div'); nav.className = 'wknav';
+    nav.innerHTML = `<button ${i === 0 ? 'disabled' : ''} aria-label="Önceki hafta">‹</button>
+      <div class="lbl">${keys[i] === thisWeek ? 'Bu hafta' : weekLabel(keys[i])}<small>${keys[i] === thisWeek ? weekLabel(keys[i]) : ''}${rounds ? (keys[i] === thisWeek ? ' · ' : '') + rounds : ''}</small></div>
+      <button ${i === keys.length - 1 ? 'disabled' : ''} aria-label="Sonraki hafta">›</button>`;
+    nav.children[0].onclick = () => { wk = i - 1 - base; render(); };
+    nav.children[2].onclick = () => { wk = i + 1 - base; render(); };
+    m.appendChild(nav);
+    if (!list.length) { m.insertAdjacentHTML('beforeend', '<div class="note">Bu hafta maç yok.</div>'); return; }
+    for (const [k, day] of groupByDay(list)) {
+      m.insertAdjacentHTML('beforeend', `<div class="daylbl">${dayName(k)}</div>`);
+      const c = document.createElement('div'); c.className = 'card';
+      day.forEach(x => c.appendChild(matchEl(x)));
+      m.appendChild(c);
+    }
+  } else if (tab === 'puan') {
+    if (!L.groups.length) { m.insertAdjacentHTML('beforeend', '<div class="note">Puan durumu bulunamadı.</div>'); return; }
+    L.groups.forEach(g => {
+      if (g.title) m.insertAdjacentHTML('beforeend', `<div class="gtitle">${g.title}</div>`);
+      const t = document.createElement('table'); t.className = 'st';
+      t.innerHTML = '<tr><th>#</th><th class="t">Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>AV</th><th>P</th></tr>';
+      g.rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = zone(L, g, r);
+        tr.innerHTML = `<td>${r.pos}</td><td class="t">${r.crest ? `<img src="${r.crest}" alt="" loading="lazy">` : ''}<span>${r.team}</span></td>
+          <td>${r.p ?? ''}</td><td>${r.w ?? ''}</td><td>${r.d ?? ''}</td><td>${r.l ?? ''}</td>
+          <td>${r.gd > 0 ? '+' + r.gd : (r.gd ?? '')}</td><td class="p">${r.pts ?? ''}</td>`;
+        t.appendChild(tr);
+      });
+      m.appendChild(t);
+    });
+    m.insertAdjacentHTML('beforeend',
+      '<div class="legend"><span><i style="background:var(--accent)"></i>üst sıralar</span><span><i style="background:#e0a526"></i>ara sıralar</span><span><i style="background:var(--warn)"></i>alt sıralar</span></div>');
+  } else {
+    const c = document.createElement('div'); c.className = 'card';
+    L.scorers.forEach((s, i) => {
+      const r = document.createElement('div'); r.className = 'sc-row';
+      r.innerHTML = `<div class="n">${i + 1}</div><div class="who"><b>${s.name || ''}</b><small>${s.team || ''}</small></div><div class="g">${s.goals}</div>`;
+      c.appendChild(r);
+    });
+    m.appendChild(c);
+  }
+}
+function zone(L, g, r) {
+  const n = g.rows.length;
+  if (L.kind === 'cup') return r.pos <= (n > 20 ? 8 : 2) ? 'zone-cl' : (r.pos <= (n > 20 ? 24 : 4) ? 'zone-el' : '');
+  if (r.pos <= 4) return 'zone-cl';
+  if (r.pos <= 6) return 'zone-el';
+  if (r.pos > n - 3) return 'zone-dn';
+  return '';
+}
+
+$('#ref').onclick = () => { $('#ref').textContent = '…'; load(true).then(() => $('#ref').textContent = '↻'); };
+document.addEventListener('visibilitychange', () => { if (!document.hidden && DATA && Date.now() - new Date(DATA.updated) > 6e5) load(true); });
+load(false);
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost'))
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+</script>
+</body>
+</html>
